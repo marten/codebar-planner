@@ -45,6 +45,7 @@ gem 'stripe'
 group :development do
   gem 'letter_opener'
   gem 'better_errors'
+  gem 'bullet'
 end
 
 group :development, :test do
