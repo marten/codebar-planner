@@ -6,20 +6,14 @@ class EventsController < ApplicationController
   RECENT_EVENTS_DISPLAY_LIMIT = 40
 
   def index
-    events = [ Workshop.includes(:sponsors, :chapter).past.limit(RECENT_EVENTS_DISPLAY_LIMIT) ]
-    events << Course.includes(:sponsor, :chapter).past.limit(RECENT_EVENTS_DISPLAY_LIMIT)
-    events << Meeting.past.limit(RECENT_EVENTS_DISPLAY_LIMIT)
-    events << Event.past.limit(RECENT_EVENTS_DISPLAY_LIMIT)
-    events = events.compact.flatten.sort_by(&:date_and_time).reverse.first(RECENT_EVENTS_DISPLAY_LIMIT)
-    events_hash_grouped_by_date = events.group_by(&:date)
-    @past_events = events_hash_grouped_by_date.map.inject({}) { |hash, (key, value)| hash[key] = EventPresenter.decorate_collection(value); hash}
+    @past_events = present_events(PastEvents.fetch_at_most(RECENT_EVENTS_DISPLAY_LIMIT))
+    @events = present_events(UpcomingEvents.fetch_all)
+  end
 
-    events = [ Workshop.includes(:sponsors, :chapter).upcoming.all ]
-    events << Course.includes(:sponsor, :chapter).upcoming.all
-    events << Meeting.upcoming.all
-    events << Event.upcoming.all
-    events = events.compact.flatten.sort_by(&:date_and_time).group_by(&:date)
-    @events = events.map.inject({}) { |hash, (key, value)| hash[key] = EventPresenter.decorate_collection(value); hash}
+  def present_events(events)
+    events \
+      .group_by(&:date)
+      .map.inject({}) { |hash, (key, value)| hash[key] = EventPresenter.decorate_collection(value); hash}
   end
 
   def show

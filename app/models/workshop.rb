@@ -20,7 +20,13 @@ class Workshop < ActiveRecord::Base
   before_save :combine_date_and_time, :set_rsvp_close_time
 
   def host
-    WorkshopSponsor.hosts.for_session(self.id).first.sponsor rescue nil
+    hosting_sponsor = if workshop_sponsors.loaded?
+      workshop_sponsors.select { |workshop_sponsor| workshop_sponsor.host }.first
+    else
+      workshop_sponsors.hosts.includes(:sponsor).limit(1).first
+    end
+
+    hosting_sponsor && hosting_sponsor.sponsor
   end
 
   def waiting_list

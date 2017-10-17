@@ -8,7 +8,16 @@ class WorkshopPresenter < EventPresenter
   end
 
   def organisers
-    @organisers ||= model.permissions.find_by_name("organiser").members rescue chapter_organisers
+    return @organisers if @organisers
+    puts 'foo'
+
+    permission = if model.permissions.loaded?
+      model.permissions.select { |permission| permission.name == "organiser" }.first
+    else
+      model.permissions.find_by_name("organiser")
+    end
+
+    @organisers = permission.present? ? permission.members : chapter_organisers
   end
 
   # Gets an HTML list of the organisers, with mobile numbers if the event's

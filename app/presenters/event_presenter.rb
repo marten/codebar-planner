@@ -34,7 +34,11 @@ class EventPresenter < SimpleDelegator
   end
 
   def organisers
-    @organisers ||= model.permissions.find_by_name("organiser").members rescue []
+    if model.permissions.loaded?
+      @organisers ||= model.permissions.select { |permission| permission.name == "organiser" }.first.members rescue []
+    else
+      @organisers ||= model.permissions.find_by_name("organiser").members rescue []
+    end
   end
 
   def month
@@ -92,7 +96,11 @@ class EventPresenter < SimpleDelegator
   end
 
   def chapter_organisers
-    model.chapter.permissions.find_by_name("organiser").members rescue []
+    if model.permissions.loaded?
+      @chapter_organisers ||= model.chapter.permissions.select { |permission| permission.name == "organiser" }.first.members rescue []
+    else
+      @chapter_organisers = model.chapter.permissions.find_by_name("organiser").members rescue []
+    end
   end
 
   def model

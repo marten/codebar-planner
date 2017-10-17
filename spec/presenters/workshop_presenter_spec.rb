@@ -17,7 +17,7 @@ describe WorkshopPresenter do
   end
 
   it "#organisers" do
-    expect(workshop_double).to receive(:permissions)
+    expect(workshop_double).to receive(:permissions).at_least(:once).and_return(double(loaded?: true, select: []))
     expect(workshop_double).to receive(:chapter).and_return(chapter)
 
     workshop.organisers

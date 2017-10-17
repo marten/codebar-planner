@@ -89,7 +89,7 @@ describe Workshop do
         Fabricate(:workshop_sponsor, sponsor: sponsor, workshop: workshop, host: true)
       end
 
-      it { expect(workshop.host).to eq(sponsor) }
+      it { expect(workshop.reload.host).to eq(sponsor) }
     end
 
     context "attendances" do
