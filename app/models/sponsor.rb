@@ -21,7 +21,7 @@ class Sponsor < ActiveRecord::Base
   end
 
   def self.latest
-    WorkshopSponsor.order("created_at desc").limit(15).map(&:sponsor)
+    WorkshopSponsor.includes(:sponsor).order("created_at desc").limit(15).map(&:sponsor)
   end
 
   private
