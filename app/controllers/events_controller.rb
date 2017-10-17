@@ -6,16 +6,16 @@ class EventsController < ApplicationController
   RECENT_EVENTS_DISPLAY_LIMIT = 40
 
   def index
-    events = [ Workshop.past.limit(RECENT_EVENTS_DISPLAY_LIMIT) ]
-    events << Course.past.limit(RECENT_EVENTS_DISPLAY_LIMIT)
+    events = [ Workshop.includes(:sponsors, :chapter).past.limit(RECENT_EVENTS_DISPLAY_LIMIT) ]
+    events << Course.includes(:sponsor, :chapter).past.limit(RECENT_EVENTS_DISPLAY_LIMIT)
     events << Meeting.past.limit(RECENT_EVENTS_DISPLAY_LIMIT)
     events << Event.past.limit(RECENT_EVENTS_DISPLAY_LIMIT)
     events = events.compact.flatten.sort_by(&:date_and_time).reverse.first(RECENT_EVENTS_DISPLAY_LIMIT)
     events_hash_grouped_by_date = events.group_by(&:date)
     @past_events = events_hash_grouped_by_date.map.inject({}) { |hash, (key, value)| hash[key] = EventPresenter.decorate_collection(value); hash}
 
-    events = [ Workshop.upcoming.all ]
-    events << Course.upcoming.all
+    events = [ Workshop.includes(:sponsors, :chapter).upcoming.all ]
+    events << Course.includes(:sponsor, :chapter).upcoming.all
     events << Meeting.upcoming.all
     events << Event.upcoming.all
     events = events.compact.flatten.sort_by(&:date_and_time).group_by(&:date)
